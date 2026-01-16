@@ -8,33 +8,22 @@ A simple browser-based tool to view and comment on uncommitted git changes. Buil
 
 ```bash
 cd git-diff-viewer
-npm run install:all
+npm i
 ```
 
-**2. Start the servers:**
-
-You can run both together or separately.
-
-### Option A: Run Both Together (Recommended)
-
-```bash
-SOURCE_DIR=/path/to/your/repos npm run dev
-```
-
-For example:
-```bash
-SOURCE_DIR=/Users/vkaul/code npm run dev
-```
-
-This starts both server (port 3001) and client (port 3000) and opens your browser.
-
-### Option B: Run Separately (Two Terminals)
+**2. Start the servers in two separate terminals:**
 
 **Terminal 1 - Start Server:**
 
 ```bash
 cd server
 SOURCE_DIR=/path/to/your/repos npm run dev
+```
+
+For example:
+```bash
+cd server
+SOURCE_DIR=/Users/vkaul/code npm run dev
 ```
 
 **Terminal 2 - Start Client:**
