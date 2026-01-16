@@ -11,7 +11,11 @@ cd git-diff-viewer
 npm run install:all
 ```
 
-**2. Start the app:**
+**2. Start the servers:**
+
+You can run both together or separately.
+
+### Option A: Run Both Together (Recommended)
 
 ```bash
 SOURCE_DIR=/path/to/your/repos npm run dev
@@ -22,9 +26,27 @@ For example:
 SOURCE_DIR=/Users/vkaul/code npm run dev
 ```
 
+This starts both server (port 3001) and client (port 3000) and opens your browser.
+
+### Option B: Run Separately (Two Terminals)
+
+**Terminal 1 - Start Server:**
+
+```bash
+cd server
+SOURCE_DIR=/path/to/your/repos npm run dev
+```
+
+**Terminal 2 - Start Client:**
+
+```bash
+cd client
+npm run dev
+```
+
 **3. Open your browser:**
 
-The app will automatically open at `http://localhost:3000`
+Navigate to `http://localhost:3000`
 
 That's it! Select a repository from the sidebar to see your uncommitted changes.
 
@@ -86,22 +108,6 @@ Comments are stored in your browser's localStorage, so they're private to your m
   ```bash
   PORT=4001 SOURCE_DIR=/path npm run dev:server
   ```
-
-## Alternative: Run Separately
-
-If you prefer to run the servers in separate terminals:
-
-**Terminal 1 (Server):**
-```bash
-cd server
-SOURCE_DIR=/path/to/repos npm run dev
-```
-
-**Terminal 2 (Client):**
-```bash
-cd client
-npm run dev
-```
 
 ## Tech Stack
 
