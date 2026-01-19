@@ -91,4 +91,36 @@ export const commentStorage = {
     const filtered = all.filter((c) => c.folderName !== folderName);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
   },
+
+  /**
+   * Get comments for a specific folder (for migration)
+   */
+  getForFolder(folderName: string): Comment[] {
+    const all = this.getAll();
+    return all.filter((c) => c.folderName === folderName);
+  },
+
+  /**
+   * Check if localStorage has any comments
+   */
+  hasComments(): boolean {
+    const all = this.getAll();
+    return all.length > 0;
+  },
+
+  /**
+   * Mark that migration has been attempted for this folder
+   */
+  markMigrated(folderName: string): void {
+    const key = `git-diff-migrated-${folderName}`;
+    localStorage.setItem(key, 'true');
+  },
+
+  /**
+   * Check if migration has been attempted for this folder
+   */
+  isMigrated(folderName: string): boolean {
+    const key = `git-diff-migrated-${folderName}`;
+    return localStorage.getItem(key) === 'true';
+  },
 };

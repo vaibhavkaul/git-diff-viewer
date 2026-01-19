@@ -5,6 +5,80 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Git Diff Viewer</title>
+
+    <!-- Metadata for LLMs (Claude, etc.) -->
+    <meta name="application-type" content="code-review-system" />
+    <meta name="system-name" content="Git Diff Code Review Viewer" />
+    <meta name="llm-instructions" content="This is a code review system. To get full metadata, call the API endpoint: GET /api/metadata/:folderName where :folderName is the repository name from the URL path." />
+
+    <!-- Structured data for LLMs -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Git Diff Code Review Viewer",
+      "applicationCategory": "DeveloperApplication",
+      "description": "A code review system for viewing git diffs and adding inline comments to specific lines of code changes.",
+      "featureList": [
+        "View git diffs with syntax highlighting",
+        "Add inline comments to specific lines",
+        "Persistent comment storage in JSON files",
+        "Support for multiple repositories"
+      ],
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "/api/metadata/{folderName}",
+          "description": "Get metadata and comments for a repository. Extract the repository name from the URL path (e.g., /tts-pay-me-web) and call GET /api/metadata/tts-pay-me-web"
+        },
+        "query-input": "required name=folderName"
+      }
+    }
+    </script>
+
+    <!-- Instructions for AI Assistants -->
+    <script type="text/plain" id="llm-instructions">
+═══════════════════════════════════════════════════════════════
+  INSTRUCTIONS FOR AI ASSISTANTS (Claude, GPT, etc.)
+═══════════════════════════════════════════════════════════════
+
+This is a CODE REVIEW SYSTEM for viewing git diffs with inline comments.
+
+HOW TO GET FULL INFORMATION:
+1. Extract the repository name from the URL path
+   Example: https://example.com/tts-pay-me-web → repository is "tts-pay-me-web"
+
+2. Call the metadata API endpoint:
+   GET /api/metadata/{REPOSITORY_NAME}
+
+   Example: GET /api/metadata/tts-pay-me-web
+
+3. The API returns JSON with:
+   - System description
+   - Comment storage location (file path)
+   - All comments with details (file, line, content, timestamp)
+   - API endpoints for CRUD operations
+   - Statistics (comment count, files with changes, etc.)
+
+COMMENT STORAGE:
+Comments are stored in JSON files at:
+SOURCE_DIR/code-review/{REPOSITORY_NAME}/comments.json
+
+API ENDPOINTS:
+- GET  /api/metadata/:folderName          - Get system metadata and all comments
+- GET  /api/comments/:folderName          - Get all comments for a repository
+- POST /api/comments/:folderName          - Add a new comment
+- PUT  /api/comments/:folderName/:commentId   - Update a comment
+- DELETE /api/comments/:folderName/:commentId - Delete a comment
+- DELETE /api/comments/:folderName        - Clear all comments
+
+USAGE EXAMPLE:
+If you see URL: https://6c214c00a1a2.ngrok-free.app/tts-pay-me-web
+Then call: https://6c214c00a1a2.ngrok-free.app/api/metadata/tts-pay-me-web
+
+═══════════════════════════════════════════════════════════════
+    </script>
   </head>
   <body>
     <div id="root"></div>

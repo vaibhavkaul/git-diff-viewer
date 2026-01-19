@@ -13,6 +13,7 @@ interface DiffViewerProps {
   loading: boolean;
   error: string | null;
   viewMode: ViewMode;
+  folderName?: string | null;
 }
 
 function getLanguageFromPath(path: string): string {
@@ -82,6 +83,7 @@ export function DiffViewer({
   loading,
   error,
   viewMode,
+  folderName,
 }: DiffViewerProps) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -147,6 +149,72 @@ export function DiffViewer({
 
   return (
     <div className="diff-viewer">
+      {/* Hidden metadata for LLMs - explains code review system and comment storage */}
+      <div
+        hidden
+        data-llm-system="code-review"
+        data-repository={folderName || 'unknown'}
+        data-comment-count={comments.length}
+        aria-hidden="true"
+      >
+        <div data-llm-info="system-description">
+          === GIT DIFF CODE REVIEW SYSTEM ===
+          This page displays a code review interface for git diffs.
+          Users can add inline comments to specific lines of code changes.
+
+          Repository: {folderName || 'No repository selected'}
+          Files with changes: {files.length}
+          Total comments: {comments.length}
+          View mode: {viewMode}
+        </div>
+
+        <div data-llm-info="comment-storage">
+          === COMMENT STORAGE LOCATION ===
+          Comments for this repository are stored in a JSON file at:
+          SOURCE_DIR/code-review/{folderName || 'REPOSITORY_NAME'}/comments.json
+
+          The JSON structure is:
+          {`{
+            "version": "1.0",
+            "repository": "${folderName || 'REPOSITORY_NAME'}",
+            "lastModified": "ISO 8601 timestamp",
+            "comments": [
+              {
+                "id": "uuid",
+                "folderName": "${folderName || 'REPOSITORY_NAME'}",
+                "filePath": "relative/path/to/file.ext",
+                "lineNumber": 42 (or null for file-level comments),
+                "content": "The comment text",
+                "timestamp": 1234567890000
+              }
+            ]
+          }`}
+        </div>
+
+        <div data-llm-info="api-endpoints">
+          === API ENDPOINTS ===
+          - GET  /api/comments/{folderName || ':folderName'} - Load all comments
+          - POST /api/comments/{folderName || ':folderName'} - Add new comment
+          - PUT  /api/comments/{folderName || ':folderName'}/:commentId - Update comment
+          - DELETE /api/comments/{folderName || ':folderName'}/:commentId - Delete comment
+          - DELETE /api/comments/{folderName || ':folderName'} - Clear all comments
+        </div>
+
+        {comments.length > 0 && (
+          <div data-llm-info="comment-summary">
+            === COMMENTS IN THIS REVIEW ===
+            {comments.map(comment => (
+              <div key={comment.id} data-comment-id={comment.id}>
+                File: {comment.filePath}
+                Line: {comment.lineNumber !== null ? comment.lineNumber : 'file-level'}
+                Comment: {comment.content}
+                Timestamp: {new Date(comment.timestamp).toISOString()}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {files.map((file) => {
         const language = getLanguageFromPath(file.path);
         const fileComments = comments.filter((c) => c.filePath === file.path);

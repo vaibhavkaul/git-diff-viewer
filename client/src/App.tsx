@@ -6,7 +6,7 @@ import { DiffViewer } from './components/DiffViewer';
 import { useFolders } from './hooks/useFolders';
 import { useGitDiff } from './hooks/useGitDiff';
 import { useComments } from './hooks/useComments';
-import { commentStorage } from './services/localStorage';
+import { useMigration } from './hooks/useMigration';
 import './styles/diff.css';
 
 function AppContent() {
@@ -21,7 +21,10 @@ function AppContent() {
 
   const { folders, loading: foldersLoading, error: foldersError } = useFolders();
   const { files, loading: diffLoading, error: diffError } = useGitDiff(selectedFolder);
-  const { comments, addComment, updateComment, deleteComment, clearAll } = useComments(selectedFolder);
+  const { comments, loading: commentsLoading, error: commentsError, addComment, updateComment, deleteComment, clearAll } = useComments(selectedFolder);
+
+  // Automatically migrate localStorage comments to server
+  useMigration(selectedFolder);
 
   // Update selected folder when URL param changes
   useEffect(() => {
@@ -48,9 +51,7 @@ function AppContent() {
 
   const handleClearFolderComments = () => {
     if (selectedFolder) {
-      commentStorage.clearFolder(selectedFolder);
-      // Reload comments
-      window.location.reload();
+      clearAll();
     }
   };
 
@@ -80,6 +81,18 @@ function AppContent() {
         </aside>
 
         <main className="content">
+          {commentsError && (
+            <div className="error-banner" style={{
+              padding: '12px 16px',
+              margin: '16px',
+              backgroundColor: '#fee',
+              border: '1px solid #fcc',
+              borderRadius: '4px',
+              color: '#c33'
+            }}>
+              <strong>Comment Error:</strong> {commentsError}
+            </div>
+          )}
           {selectedFolder ? (
             <DiffViewer
               files={files}
@@ -87,9 +100,10 @@ function AppContent() {
               onAddComment={handleAddComment}
               onUpdateComment={updateComment}
               onDeleteComment={deleteComment}
-              loading={diffLoading}
+              loading={diffLoading || commentsLoading}
               error={diffError}
               viewMode={viewMode}
+              folderName={selectedFolder}
             />
           ) : (
             <div className="empty-state">

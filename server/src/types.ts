@@ -33,3 +33,19 @@ export interface FolderInfo {
   path: string;
   hasChanges: boolean;
 }
+
+export interface Comment {
+  id: string;
+  folderName: string;
+  filePath: string;
+  lineNumber: number | null;
+  content: string;
+  timestamp: number;
+}
+
+export interface CommentFile {
+  version: string;
+  repository: string;
+  lastModified: string;
+  comments: Comment[];
+}
