@@ -32,6 +32,7 @@ export interface FolderInfo {
   name: string;
   path: string;
   hasChanges: boolean;
+  branch: string;
 }
 
 export interface Comment {

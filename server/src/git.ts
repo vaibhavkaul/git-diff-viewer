@@ -25,10 +25,12 @@ export class GitService {
 
           if (isGitRepo) {
             const hasChanges = await this.hasUncommittedChanges(folderPath);
+            const branch = await this.getCurrentBranch(folderPath);
             folders.push({
               name: entry.name,
               path: folderPath,
-              hasChanges
+              hasChanges,
+              branch
             });
           }
         }
@@ -67,6 +69,19 @@ export class GitService {
   }
 
   /**
+   * Get the current branch name
+   */
+  private async getCurrentBranch(folderPath: string): Promise<string> {
+    try {
+      const git = simpleGit(folderPath);
+      const branch = await git.revparse(['--abbrev-ref', 'HEAD']);
+      return branch.trim();
+    } catch {
+      return 'unknown';
+    }
+  }
+
+  /**
    * Get git status for a folder
    */
   async getStatus(folderName: string): Promise<GitStatus> {
@@ -96,8 +111,12 @@ export class GitService {
     const stagedDiff = await git.diff(['--cached', '--unified=3']);
     const unstagedDiff = await git.diff(['HEAD', '--unified=3']);
 
-    // Combine both diffs
-    const fullDiff = stagedDiff + '\n' + unstagedDiff;
+    // Get untracked files
+    const status = await git.status();
+    const untrackedDiff = await this.generateUntrackedFilesDiff(folderPath, status.not_added);
+
+    // Combine all diffs
+    const fullDiff = stagedDiff + '\n' + unstagedDiff + '\n' + untrackedDiff;
 
     if (!fullDiff.trim()) {
       return { diff: '', files: [] };
@@ -130,6 +149,51 @@ export class GitService {
     } catch (error) {
       throw new Error(`Failed to read file: ${error}`);
     }
+  }
+
+  /**
+   * Generate diff output for untracked files
+   */
+  private async generateUntrackedFilesDiff(folderPath: string, untrackedFiles: string[]): Promise<string> {
+    if (untrackedFiles.length === 0) {
+      return '';
+    }
+
+    const diffs: string[] = [];
+
+    for (const filePath of untrackedFiles) {
+      const fullPath = path.join(folderPath, filePath);
+
+      // Security check
+      if (!fullPath.startsWith(folderPath)) {
+        continue;
+      }
+
+      try {
+        const content = await fs.readFile(fullPath, 'utf-8');
+        const lines = content.split('\n');
+
+        // Generate git diff format for new file
+        let diff = `diff --git a/${filePath} b/${filePath}\n`;
+        diff += `new file mode 100644\n`;
+        diff += `index 0000000..0000000\n`;
+        diff += `--- /dev/null\n`;
+        diff += `+++ b/${filePath}\n`;
+        diff += `@@ -0,0 +1,${lines.length} @@\n`;
+
+        // Add all lines as additions
+        for (const line of lines) {
+          diff += `+${line}\n`;
+        }
+
+        diffs.push(diff);
+      } catch (error) {
+        // Skip files that can't be read (binary files, permission issues, etc.)
+        console.warn(`Skipping untracked file ${filePath}: ${error}`);
+      }
+    }
+
+    return diffs.join('\n');
   }
 
   /**

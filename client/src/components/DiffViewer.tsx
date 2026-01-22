@@ -116,6 +116,11 @@ export function DiffViewer({
     });
   };
 
+  const copyFilePath = (filePath: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    navigator.clipboard.writeText(filePath);
+  };
+
   if (loading) {
     return (
       <div className="diff-viewer">
@@ -235,6 +240,13 @@ export function DiffViewer({
               <div className="diff-file-path">
                 <span className="file-icon">📄</span>
                 {file.path}
+                <button
+                  className="file-copy-button"
+                  onClick={(e) => copyFilePath(file.path, e)}
+                  title="Copy file path"
+                >
+                  📋
+                </button>
               </div>
               <div className="diff-file-stats">
                 <span className="additions">+{file.additions}</span>

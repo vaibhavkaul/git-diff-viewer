@@ -78,7 +78,10 @@ export function FolderBrowser({
               <span className="folder-icon">
                 {folder.hasChanges ? '📝' : '📁'}
               </span>
-              <span className="folder-name">{folder.name}</span>
+              <div className="folder-info">
+                <span className="folder-name">{folder.name}</span>
+                <span className="folder-branch">{folder.branch}</span>
+              </div>
               {folder.hasChanges && (
                 <span className="changes-indicator" title="Has uncommitted changes">
                   ●
